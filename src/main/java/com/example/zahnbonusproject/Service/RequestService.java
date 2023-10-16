@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -21,6 +22,9 @@ public class RequestService {
 
     @Autowired
     private RequestRepository requestRepository;
+
+    @Autowired
+    private UserService userService;
 
     public Request createRequest(MultipartFile document, User user) {
         try {
@@ -86,4 +90,24 @@ public class RequestService {
         }
         return request.getStatus();
     }
+
+    public String getRequestStatusByEmail(String email) {
+        User user = userService.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+        Request request = requestRepository.findTopByUserOrderByCreationDateDesc(user);
+        if (request == null) {
+            return "No request found for the user";
+        }
+        return request.getStatus();
+    }
+
+    public boolean userHasExistingRequest(User user) {
+        return requestRepository.findTopByUserOrderByCreationDateDesc(user) != null;
+    }
+
+
+
+
 }

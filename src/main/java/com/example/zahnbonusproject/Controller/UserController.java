@@ -12,8 +12,10 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password) {
-        User user = userService.findByEmailAndPassword(email, password);
+    public ResponseEntity<?> login(@RequestBody User userInput) {
+        String userEmail = userInput.getEmail();
+        String userPassword = userInput.getPassword();
+        User user = userService.findByEmailAndPassword(userEmail, userPassword);
         if (user == null) {
             return ResponseEntity.badRequest().body("Invalid email or password");
         }
@@ -27,6 +29,7 @@ public class UserController {
         if (existingUser != null) {
             return ResponseEntity.badRequest().body("Email already in use");
         }
+
 
         User savedUser = userService.registerUser(user);
         savedUser.setPassword(null);
